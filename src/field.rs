@@ -8,6 +8,7 @@ use bevy::{
         Transform,
     },
 };
+use nalgebra::RealField;
 // use nalgebra::Point3;
 use parry3d::shape::{Cone, Cylinder};
 
@@ -35,7 +36,7 @@ pub fn field_system(
         let current_vec_length = current_vec.length();
         let wire_cylinder = Cylinder::new(current_vec_length / 2., 0.001);
         let wire_mesh = bevy_mesh(wire_cylinder.to_trimesh(10));
-        commands.spawn_bundle(PbrBundle {
+        commands.spawn(PbrBundle {
             transform: Transform {
                 translation: *wire_coord,
                 ..Default::default()
@@ -65,6 +66,9 @@ pub fn field_system(
                     let arrow_translation_norm = arrow_translation.normalize();
                     let part_current_vec_norm = current_vec_norm.cross(arrow_translation_norm);
                     let arrow_tr_length = arrow_translation.length();
+                    if arrow_tr_length < 0.00001 {
+                        continue;
+                    }
                     let arrow_biot_savart_b_magnitude =
                         current_vec_length / arrow_tr_length.powi(2);
 
@@ -74,12 +78,13 @@ pub fn field_system(
                 let arrow_quat =
                     Quat::from_rotation_arc(arrow_init_direction, arrow_cross.normalize());
                 let arrow_scale = 0.00001 * arrow_cross.length();
+                assert!(arrow_scale.is_sign_positive(), "arrow_scale {} is negative", arrow_scale);
 
                 let cylinder = Cylinder::new(arrow_scale * 10., arrow_scale);
                 let cylinder_mesh = bevy_mesh(cylinder.to_trimesh(10));
 
                 let _arrow = commands
-                    .spawn_bundle(PbrBundle {
+                    .spawn(PbrBundle {
                         transform: Transform {
                             translation: arrow_coord,
                             rotation: arrow_quat,
@@ -92,7 +97,7 @@ pub fn field_system(
                     .with_children(|parent| {
                         let cone = Cone::new(arrow_scale * 5., arrow_scale * 3.0);
                         let cone_mesh = bevy_mesh(cone.to_trimesh(10));
-                        parent.spawn_bundle(PbrBundle {
+                        parent.spawn(PbrBundle {
                             transform: Transform {
                                 translation: Vec3::new(0.0, arrow_scale * 10., 0.0),
                                 ..Default::default()

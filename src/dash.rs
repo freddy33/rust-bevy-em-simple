@@ -17,7 +17,7 @@ pub fn dash_fps_system(mut commands: Commands, asset_server: Res<AssetServer>) {
     let bold: Handle<Font> = asset_server.load("fonts/FiraSans-Bold.ttf");
     let medium: Handle<Font> = asset_server.load("fonts/FiraMono-Medium.ttf");
     commands
-        .spawn_bundle(TextBundle {
+        .spawn(TextBundle {
             style: Style {
                 align_self: AlignSelf::FlexEnd,
                 ..Default::default()
@@ -48,15 +48,15 @@ pub fn dash_fps_system(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert(FpsText);
 }
 
-pub fn dash_fps_update_system(
-    diagnostics: Res<Diagnostics>,
-    mut query: Query<&mut Text, With<FpsText>>,
-) {
-    for mut text in query.iter_mut() {
-        if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
-            if let Some(average) = fps.average() {
-                text.sections[1].value = format!("{:.1}", average);
-            }
-        }
-    }
-}
+// pub fn dash_fps_update_system(
+//     diagnostics: Res<Diagnostics>,
+//     mut query: Query<&mut Text, With<FpsText>>,
+// ) {
+//     for mut text in query.iter_mut() {
+//         if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
+//             if let Some(average) = fps.average() {
+//                 text.sections[1].value = format!("{:.1}", average);
+//             }
+//         }
+//     }
+// }
